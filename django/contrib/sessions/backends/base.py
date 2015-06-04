@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import logging
+import socket
 import base64
 from datetime import datetime, timedelta
 import logging
@@ -55,12 +56,11 @@ class SessionBase(object):
 
     def __setitem__(self, key, value):
         if key == SESSION_KEY and SESSION_KEY in self._session:
-            logger.info('session: %s' % str(self._session[key]))
-            logger.info('modify userid in session, prev: %s, cur: %s' % (self._session[key], value))
-            try:
-                raise Error()
-            except:
-                logger.exception('traceback')
+            hostname = socket.gethostname()
+            logger.info('%s: session: %s' % (hostname, str(self._session[key])))
+            logger.info('%s:modify userid in session, prev: %s, cur: %s' % (hostname, self._session[key], value))
+            import traceback
+            logger.info('%s: %s' %(hostname, ''.join(traceback.format_stack())))
 
         self._session[key] = value
         self.modified = True

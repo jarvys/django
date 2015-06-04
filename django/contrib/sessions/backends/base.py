@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import logging
 import base64
 from datetime import datetime, timedelta
 import logging
@@ -19,6 +20,10 @@ from django.contrib.sessions.exceptions import SuspiciousSession
 # session_key should not be case sensitive because some backends can store it
 # on case insensitive file systems.
 VALID_KEY_CHARS = string.ascii_lowercase + string.digits
+
+
+SESSION_KEY = '_auth_user_id'
+logger = logging.getLogger('trace.sessions')
 
 
 class CreateError(Exception):
@@ -49,6 +54,14 @@ class SessionBase(object):
         return self._session[key]
 
     def __setitem__(self, key, value):
+        if key == SESSION_KEY and SESSION_KEY in self._session:
+            logger.info('session: %s' % str(self._session[key]))
+            logger.info('modify userid in session, prev: %s, cur: %s' % (self._session[key], value))
+            try:
+                raise Error()
+            except:
+                logger.exception('traceback')
+
         self._session[key] = value
         self.modified = True
 
